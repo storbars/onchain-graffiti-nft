@@ -5,7 +5,7 @@ const path = require('path');
 // Create output directory if it doesn't exist
 const outputDir = path.join(__dirname, '../preview');
 if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir);
+    fs.mkdirSync(outputDir, { recursive: true });
 }
 
 // Generate multiple preview NFTs with different parameters
