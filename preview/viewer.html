@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NFT Preview Viewer</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .nft-card {
+            background: #2a2a2a;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .nft-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+        .nft-info {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>NFT Preview Gallery</h1>
+    <div class="gallery" id="gallery"></div>
+
+    <script>
+        async function loadPreviews() {
+            try {
+                const response = await fetch('.');
+                const text = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(text, 'text/html');
+                const files = Array.from(doc.querySelectorAll('a'))
+                    .map(a => a.href)
+                    .filter(href => href.endsWith('.svg'));
+
+                const gallery = document.getElementById('gallery');
+                
+                files.forEach(file => {
+                    const fileName = file.split('/').pop();
+                    const [_, num, text, style, hue, complexity] = fileName.split('_');
+                    
+                    const card = document.createElement('div');
+                    card.className = 'nft-card';
+                    
+                    card.innerHTML = `
+                        <img src="${fileName}" alt="NFT Preview">
+                        <div class="nft-info">
+                            <p>Text: ${text}</p>
+                            <p>${style.replace('.svg', '')}</p>
+                            <p>${hue}</p>
+                            <p>${complexity.replace('.svg', '')}</p>
+                        </div>
+                    `;
+                    
+                    gallery.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading previews:', error);
+            }
+        }
+
+        loadPreviews();
+    </script>
+</body>
+</html>
