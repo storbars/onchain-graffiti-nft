@@ -1,5 +1,3 @@
-const { createCanvas } = require('canvas');
-
 class SVGGenerator {
     static generateSquiggleBackground(hue, complexity) {
         const points = [];
@@ -22,44 +20,23 @@ class SVGGenerator {
         `;
     }
     
-    static generateGraffitiPath(text, style) {
-        const canvas = createCanvas(1000, 1000);
-        const ctx = canvas.getContext('2d');
-        
-        const fonts = [
-            'bold 120px Arial',
-            'bold 140px Impact',
-            'bold 130px Helvetica',
-            'bold 150px "Arial Black"',
-            'bold 160px Verdana'
-        ];
-        
-        ctx.font = fonts[style % fonts.length];
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        const metrics = ctx.measureText(text);
-        const textWidth = metrics.width;
-        
-        const distortionAmount = 10 + (style * 5);
-        const points = [];
-        
-        // Create distorted path points for text
-        for (let i = 0; i < textWidth; i += 10) {
-            const distX = (Math.random() - 0.5) * distortionAmount;
-            const distY = (Math.random() - 0.5) * distortionAmount;
-            points.push(`${500 - textWidth/2 + i + distX},${500 + distY}`);
-        }
-        
-        // Generate the SVG path
-        const pathData = `M ${points[0]} L ${points.join(' ')} Z`;
+    static generateGraffitiText(text, style) {
+        const fontSize = 120 + (style * 10);
+        const x = 500;
+        const y = 500;
         
         return `
-            <path d="${pathData}" 
-                fill="none" 
-                stroke="white" 
-                stroke-width="8"
-                filter="url(#graffiti-filter)" />
+            <text 
+                x="${x}" 
+                y="${y}" 
+                font-size="${fontSize}px" 
+                font-family="Arial Black" 
+                fill="white" 
+                text-anchor="middle" 
+                dominant-baseline="middle"
+                filter="url(#graffiti-filter)">
+                ${text}
+            </text>
             <defs>
                 <filter id="graffiti-filter">
                     <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
@@ -71,7 +48,7 @@ class SVGGenerator {
     
     static generateFullSVG(text, style, hue, complexity) {
         const background = this.generateSquiggleBackground(hue, complexity);
-        const graffitiText = this.generateGraffitiPath(text, style);
+        const graffitiText = this.generateGraffitiText(text, style);
         
         return `
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
