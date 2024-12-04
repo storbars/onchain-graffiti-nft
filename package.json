@@ -1,0 +1,27 @@
+{
+  "name": "onchain-graffiti-nft",
+  "version": "1.0.0",
+  "description": "On-chain generative NFT project combining Chromie Squiggle-inspired backgrounds with graffiti text art",
+  "main": "index.js",
+  "scripts": {
+    "test": "hardhat test",
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js",
+    "deploy:goerli": "hardhat run scripts/deploy.js --network goerli"
+  },
+  "keywords": [
+    "nft",
+    "ethereum",
+    "solidity",
+    "hardhat"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^2.0.0",
+    "@openzeppelin/contracts": "^4.8.0",
+    "canvas": "^2.10.2",
+    "dotenv": "^16.0.3",
+    "hardhat": "^2.12.4"
+  }
+}
