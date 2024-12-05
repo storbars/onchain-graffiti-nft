@@ -9,14 +9,8 @@ class SVGGenerator {
         const x = 500;
         const y = 500;
         
-        // Graffiti-style font selection
-        const fonts = [
-            'Permanent Marker',
-            'Rock Salt',
-            'Rubik Spray Paint',
-            'Rubik Burned',
-            'Sedgwick Ave Display'
-        ];
+        // Replace this with your base64 encoded font
+        const customFontBase64 = 'YOUR_BASE64_FONT_DATA_HERE';
         
         let fontSize = Math.min(
             900 / Math.sqrt(text.length),
@@ -43,12 +37,13 @@ class SVGGenerator {
             fontSize *= 1.2;
         }
         
-        const selectedFont = fonts[style % fonts.length];
-        
         return `
             <defs>
                 <style>
-                    @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Rock+Salt&family=Rubik+Burned&family=Rubik+Spray+Paint&family=Sedgwick+Ave+Display&display=swap');
+                    @font-face {
+                        font-family: 'CustomGraffiti';
+                        src: url(data:font/truetype;charset=utf-8;base64,${customFontBase64}) format('truetype');
+                    }
                 </style>
                 <filter id="graffiti-filter">
                     <feGaussianBlur in="SourceGraphic" stdDeviation="2" />
@@ -60,7 +55,7 @@ class SVGGenerator {
                 x="${x}" 
                 y="${y}" 
                 font-size="${fontSize}px" 
-                font-family="'${selectedFont}', cursive" 
+                font-family="'CustomGraffiti'" 
                 fill="white" 
                 text-anchor="middle" 
                 dominant-baseline="middle"
