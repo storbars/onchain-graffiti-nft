@@ -1,22 +1,59 @@
 class SVGGenerator {
     static generateSquiggleBackground(hue, complexity) {
-        const points = [];
-        const amplitude = 50 + (complexity % 30);
-        const frequency = 0.01 + (complexity % 10) * 0.002;
+        const layers = [];
+        const numLayers = 5 + (complexity % 8);
         
-        for (let x = 0; x < 1000; x += 10) {
-            const y = 500 + Math.sin(x * frequency) * amplitude;
-            points.push(`${x},${y}`);
+        for (let layer = 0; layer < numLayers; layer++) {
+            const points = [];
+            const amplitude = 30 + (complexity % 50) + (layer * 20);
+            const frequency = 0.002 + (layer * 0.001) + (complexity % 10) * 0.0005;
+            const verticalOffset = 300 + (layer * 100);
+            
+            // Generate points with varied density
+            for (let x = 0; x < 1000; x += 5) {
+                const noise = Math.sin(x * 0.1) * 20;
+                const y = verticalOffset + 
+                          Math.sin(x * frequency) * amplitude +
+                          Math.cos(x * frequency * 2) * (amplitude / 2) +
+                          noise;
+                points.push(`${x},${y}`);
+            }
+            
+            const layerHue = (hue + (layer * 30)) % 360;
+            const opacity = 0.6 - (layer * 0.1);
+            
+            layers.push(`
+                <path 
+                    d="M ${points.join(' L ')}" 
+                    stroke="hsl(${layerHue}, 70%, 60%)" 
+                    stroke-width="${3 + (layer * 2)}"
+                    stroke-opacity="${opacity}"
+                    fill="none"
+                />
+            `);
+        }
+
+        // Add noise pattern
+        const noisePoints = [];
+        for (let i = 0; i < 200; i++) {
+            const x = Math.random() * 1000;
+            const y = Math.random() * 1000;
+            noisePoints.push(`
+                <circle 
+                    cx="${x}" 
+                    cy="${y}" 
+                    r="${Math.random() * 2}"
+                    fill="hsl(${hue}, 70%, 80%)"
+                    opacity="0.3"
+                />
+            `);
         }
         
         return `
-            <defs>
-                <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:hsl(${hue},70%,60%);stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:hsl(${(hue + 30) % 360},70%,60%);stop-opacity:1" />
-                </linearGradient>
-            </defs>
-            <path d="M ${points.join(' L ')}" stroke="url(#grad)" stroke-width="5" fill="none" />
+            <g class="background">
+                ${layers.join('')}
+                ${noisePoints.join('')}
+            </g>
         `;
     }
     
@@ -52,7 +89,7 @@ class SVGGenerator {
         
         return `
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
-                <rect width="1000" height="1000" fill="black" />
+                <rect width="1000" height="1000" fill="#f5f5f5" />
                 ${background}
                 ${graffitiText}
             </svg>
