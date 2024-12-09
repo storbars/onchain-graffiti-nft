@@ -21,8 +21,8 @@
   <path d="M-200 400 C-150 500, -100 600, -50 400 C0 500, 50 600, 100 400 C150 500, 200 600, 250 400" stroke="#ADD8E6" stroke-width="10" fill="none" />
   <path d="M-225 450 C-175 550, -125 650, -75 450 C-25 550, 25 650, 75 450 C125 550, 175 650, 225 450" stroke="#ADD8E6" stroke-width="10" fill="none" />
 
-  <!-- Procedurally generated graffiti text -->
-  <text x="50" y="200" font-family="Urban" font-size="50" fill="#4169E1">
+  <!-- Graffiti text with border -->
+  <text x="50" y="200" font-family="Urban" font-size="50" fill="#4169E1" stroke="#000000" stroke-width="2">
     STREET ART
   </text>
 </svg>
