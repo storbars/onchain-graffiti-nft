@@ -5,14 +5,25 @@ class SVGGenerator {
             const points = [];
             const amplitude = 30 + (complexity % 50) + (layer * 20);
             const frequency = 0.002 + (layer * 0.001);
+            const verticalOffset = Math.random() * 200 + 400;
+            const phaseShift = Math.random() * Math.PI * 2;
             
             for (let x = 0; x < 1000; x += 5) {
-                const y = 500 + Math.sin(x * frequency) * amplitude;
+                const y = verticalOffset + 
+                    Math.sin(x * frequency + phaseShift) * amplitude +
+                    Math.sin(x * frequency * 2 + phaseShift) * (amplitude * 0.5);
                 points.push(`${x},${y}`);
             }
             
             const layerHue = (hue + (layer * 30)) % 360;
-            layers.push(`<path d="M ${points.join(' L ')}" stroke="hsl(${layerHue}, 70%, 60%)" stroke-width="${3 + layer}" fill="none" />`);
+            const opacity = (0.6 - (layer * 0.08));
+            
+            layers.push(`<path 
+                d="M ${points.join(' L ')}" 
+                stroke="hsl(${layerHue}, 70%, 60%)" 
+                stroke-width="${3 + layer}" 
+                stroke-opacity="${opacity}" 
+                fill="none" />`);
         }
         return layers.join('');
     }
@@ -40,6 +51,7 @@ class SVGGenerator {
                     x="${x}" 
                     y="${y}" 
                     font-size="${fontSize}" 
+                    font-family="Arial Black" 
                     fill="${textColor}" 
                     text-anchor="middle" 
                     dominant-baseline="middle">
