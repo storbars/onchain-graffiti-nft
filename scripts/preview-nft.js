@@ -34,22 +34,30 @@ function generatePreviews() {
         'MBA CERTIFIED',
         'MONKEE BUSINESS'
     ];
-    const styles = [0, 1, 2, 3, 4];
-    const hues = [0, 60, 120, 180, 240, 300];
-    const complexities = [20, 50, 80];
+
+    // Generate one sample SVG and log it to console to check content
+    const sampleSvg = SVGGenerator.generateFullSVG('TEST', 0, 180, 50);
+    console.log('Sample SVG content:');
+    console.log(sampleSvg);
 
     let previewCount = 1;
 
-    // Generate one preview per text
     for (const text of texts) {
-        const style = styles[Math.floor(Math.random() * styles.length)];
-        const hue = hues[Math.floor(Math.random() * hues.length)];
-        const complexity = complexities[Math.floor(Math.random() * complexities.length)];
+        const style = Math.floor(Math.random() * 5);
+        const hue = Math.floor(Math.random() * 360);
+        const complexity = 20 + Math.floor(Math.random() * 60);
         
         const svg = SVGGenerator.generateFullSVG(text, style, hue, complexity);
         const fileName = `preview_${previewCount}_${text.replace(/\s+/g, '_')}.svg`;
-        fs.writeFileSync(path.join(outputDir, fileName), svg);
-        console.log(`Generated: ${fileName}`);
+        const filePath = path.join(outputDir, fileName);
+        
+        // Write file and log its contents
+        fs.writeFileSync(filePath, svg, 'utf8');
+        console.log(`Generated ${fileName}`);
+        if (previewCount === 1) {
+            console.log('First file content:', fs.readFileSync(filePath, 'utf8'));
+        }
+        
         previewCount++;
     }
 }
