@@ -31,16 +31,13 @@ class SVGGenerator {
     static generateFullSVG(text, style, hue, complexity) {
         const x = 500;
         const y = 500;
-        const maxWidth = 900; // Maximum width for text
+        const maxWidth = 900;
 
-        // Calculate font size based on text length
         const baseFontSize = 120;
         let fontSize = baseFontSize;
         
-        // Estimate text width (approximate)
         const getTextWidth = (text, size) => text.length * size * 0.6;
         
-        // Reduce font size until text fits
         while (getTextWidth(text, fontSize) > maxWidth && fontSize > 20) {
             fontSize *= 0.9;
         }
@@ -55,15 +52,30 @@ class SVGGenerator {
         const textColor = colors[style % colors.length];
         const background = this.generateSquiggleBackground(hue, complexity);
 
+        // Read and convert font file
+        const fs = require('fs');
+        const path = require('path');
+        const fontPath = path.join(__dirname, '..', 'Urban.ttf');
+        const fontBuffer = fs.readFileSync(fontPath);
+        const customFontBase64 = fontBuffer.toString('base64');
+
         return `<?xml version="1.0" encoding="UTF-8"?>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+                <defs>
+                    <style>
+                        @font-face {
+                            font-family: 'Urban';
+                            src: url(data:font/truetype;charset=utf-8;base64,${customFontBase64}) format('truetype');
+                        }
+                    </style>
+                </defs>
                 <rect width="1000" height="1000" fill="#1a1a1a" />
                 ${background}
                 <text 
                     x="${x}" 
                     y="${y}" 
                     font-size="${fontSize}" 
-                    font-family="Arial Black" 
+                    font-family="'Urban'" 
                     fill="${textColor}" 
                     text-anchor="middle" 
                     dominant-baseline="middle">
