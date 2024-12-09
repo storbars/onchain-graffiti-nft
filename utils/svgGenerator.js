@@ -32,6 +32,56 @@ class SVGGenerator {
         return layers.join('');
     }
 
+    static generateTextGradient(style) {
+        const gradients = [
+            // Gold gradient
+            {
+                id: 'goldGradient',
+                stops: [
+                    { offset: '0%', color: '#ffd700', opacity: '1' },
+                    { offset: '50%', color: '#ffcc00', opacity: '1' },
+                    { offset: '100%', color: '#ffd700', opacity: '1' }
+                ],
+                extraFilter: `
+                    <filter id="goldEffect">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
+                        <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" 
+                                           specularExponent="20" lighting-color="#ffd700" result="spec">
+                            <fePointLight x="-5000" y="-10000" z="20000"/>
+                        </feSpecularLighting>
+                        <feComposite in="SourceGraphic" in2="spec" operator="arithmetic" 
+                                    k1="0" k2="1" k3="1" k4="0"/>
+                    </filter>
+                `
+            },
+            // Rainbow gradient
+            {
+                id: 'rainbowGradient',
+                stops: [
+                    { offset: '0%', color: '#ff0000', opacity: '1' },
+                    { offset: '16%', color: '#ff8000', opacity: '1' },
+                    { offset: '32%', color: '#ffff00', opacity: '1' },
+                    { offset: '48%', color: '#00ff00', opacity: '1' },
+                    { offset: '64%', color: '#0000ff', opacity: '1' },
+                    { offset: '80%', color: '#4b0082', opacity: '1' },
+                    { offset: '100%', color: '#8f00ff', opacity: '1' }
+                ]
+            },
+            // Chrome gradient
+            {
+                id: 'chromeGradient',
+                stops: [
+                    { offset: '0%', color: '#ffffff', opacity: '1' },
+                    { offset: '50%', color: '#808080', opacity: '1' },
+                    { offset: '100%', color: '#ffffff', opacity: '1' }
+                ]
+            }
+        ];
+
+        const gradientIndex = style % gradients.length;
+        return gradients[gradientIndex];
+    }
+
     static generateFullSVG(text, style, hue, complexity) {
         const x = 500;
         const y = 500;
@@ -46,15 +96,8 @@ class SVGGenerator {
             fontSize *= 0.9;
         }
 
-        const colors = [
-            '#ff3333',  // Red
-            '#33FF33',  // Green
-            '#3333FF',  // Blue
-            '#FFFF33',  // Yellow
-            '#FF33FF'   // Magenta
-        ];
-        const textColor = colors[style % colors.length];
         const background = this.generateSquiggleBackground(hue, complexity);
+        const gradient = this.generateTextGradient(style);
 
         // Read the Urban.ttf file and convert to base64
         const fs = require('fs');
@@ -72,6 +115,12 @@ class SVGGenerator {
                             src: url(data:font/truetype;charset=utf-8;base64,${fontBase64}) format('truetype');
                         }
                     </style>
+                    <linearGradient id="${gradient.id}" x1="0%" y1="0%" x2="100%" y2="0%">
+                        ${gradient.stops.map(stop => 
+                            `<stop offset="${stop.offset}" stop-color="${stop.color}" stop-opacity="${stop.opacity}"/>`
+                        ).join('')}
+                    </linearGradient>
+                    ${gradient.extraFilter || ''}
                 </defs>
                 <rect width="1000" height="1000" fill="#1a1a1a" />
                 ${background}
@@ -80,7 +129,8 @@ class SVGGenerator {
                     y="${y}" 
                     font-size="${fontSize}" 
                     font-family="Urban" 
-                    fill="${textColor}" 
+                    fill="url(#${gradient.id})" 
+                    ${gradient.id === 'goldGradient' ? 'filter="url(#goldEffect)"' : ''}
                     text-anchor="middle" 
                     dominant-baseline="middle">
                     ${text}
