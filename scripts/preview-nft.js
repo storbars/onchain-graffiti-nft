@@ -8,6 +8,17 @@ if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
 }
 
+function getNextFileNumber() {
+    const files = fs.readdirSync(outputDir);
+    const numbers = files
+        .filter(file => file.startsWith('preview_') && file.endsWith('.svg'))
+        .map(file => {
+            const match = file.match(/preview_(\d+)_/);
+            return match ? parseInt(match[1]) : 0;
+        });
+    return numbers.length > 0 ? Math.max(...numbers) + 1 : 1;
+}
+
 function generatePreviews() {
     const texts = [
         'APECHAIN',
@@ -35,8 +46,8 @@ function generatePreviews() {
         'MONKEE BUSINESS'
     ];
 
-    // Create timestamp for unique filenames
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    // Get the starting number for this batch
+    let fileNumber = getNextFileNumber();
 
     for (const text of texts) {
         const style = Math.floor(Math.random() * 5);
@@ -45,12 +56,14 @@ function generatePreviews() {
         
         const svg = SVGGenerator.generateFullSVG(text, style, hue, complexity);
         
-        // Create unique filename with timestamp
-        const fileName = `preview_${timestamp}_${text.replace(/\s+/g, '_')}.svg`;
+        // Create filename with incrementing number
+        const fileName = `preview_${String(fileNumber).padStart(3, '0')}_${text.replace(/\s+/g, '_')}.svg`;
         const filePath = path.join(outputDir, fileName);
         
         fs.writeFileSync(filePath, svg, 'utf8');
         console.log(`Generated: ${fileName}`);
+        
+        fileNumber++;
     }
 }
 
