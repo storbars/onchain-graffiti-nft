@@ -43,10 +43,10 @@ class SVGGenerator {
 
         const color = colors[style % colors.length];
         return {
-            id: `textGradient_${style}`,
             mainColor: color,
-            darkColor: this.shadeColor(color, -30),
-            lightColor: this.shadeColor(color, 30)
+            darkColor: this.shadeColor(color, -50),  // Darker for shadow
+            lightColor: this.shadeColor(color, 30),  // Lighter for highlight
+            outlineColor: '#000000'  // Black outline
         };
     }
 
@@ -102,46 +102,60 @@ class SVGGenerator {
                             src: url(data:font/truetype;charset=utf-8;base64,${fontBase64}) format('truetype');
                         }
                     </style>
-                    <filter id="textEffect" x="-50%" y="-50%" width="200%" height="200%">
-                        <!-- Shadow -->
-                        <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.5"/>
-                        
-                        <!-- Emboss effect -->
-                        <feSpecularLighting surfaceScale="5" specularConstant="1" specularExponent="20" lighting-color="#ffffff">
-                            <fePointLight x="-5000" y="-10000" z="20000"/>
-                        </feSpecularLighting>
-                        <feComposite in2="SourceGraphic" operator="in" result="specular"/>
-                        <feComposite in="SourceGraphic" in2="specular" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
-                    </filter>
                 </defs>
                 <rect width="1000" height="1000" fill="#1a1a1a" />
                 ${background}
-                <g filter="url(#textEffect)">
-                    <!-- Outline/border -->
-                    <text 
-                        x="${x}" 
-                        y="${y}" 
-                        font-size="${fontSize}" 
-                        font-family="Urban" 
-                        fill="none"
-                        stroke="${textColors.darkColor}"
-                        stroke-width="3"
-                        text-anchor="middle" 
-                        dominant-baseline="middle">
-                        ${text}
-                    </text>
-                    <!-- Main text -->
-                    <text 
-                        x="${x}" 
-                        y="${y}" 
-                        font-size="${fontSize}" 
-                        font-family="Urban" 
-                        fill="${textColors.mainColor}" 
-                        text-anchor="middle" 
-                        dominant-baseline="middle">
-                        ${text}
-                    </text>
-                </g>
+                
+                <!-- Shadow layer -->
+                <text 
+                    x="${x + 4}" 
+                    y="${y + 4}" 
+                    font-size="${fontSize}" 
+                    font-family="Urban" 
+                    fill="${textColors.darkColor}" 
+                    text-anchor="middle" 
+                    dominant-baseline="middle">
+                    ${text}
+                </text>
+                
+                <!-- Outline layer -->
+                <text 
+                    x="${x}" 
+                    y="${y}" 
+                    font-size="${fontSize}" 
+                    font-family="Urban" 
+                    fill="none"
+                    stroke="${textColors.outlineColor}"
+                    stroke-width="2"
+                    text-anchor="middle" 
+                    dominant-baseline="middle">
+                    ${text}
+                </text>
+                
+                <!-- Main color layer -->
+                <text 
+                    x="${x}" 
+                    y="${y}" 
+                    font-size="${fontSize}" 
+                    font-family="Urban" 
+                    fill="${textColors.mainColor}" 
+                    text-anchor="middle" 
+                    dominant-baseline="middle">
+                    ${text}
+                </text>
+                
+                <!-- Highlight layer -->
+                <text 
+                    x="${x - 2}" 
+                    y="${y - 2}" 
+                    font-size="${fontSize}" 
+                    font-family="Urban" 
+                    fill="${textColors.lightColor}" 
+                    text-anchor="middle" 
+                    dominant-baseline="middle"
+                    opacity="0.3">
+                    ${text}
+                </text>
             </svg>`;
     }
 }
