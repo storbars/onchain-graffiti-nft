@@ -10,8 +10,12 @@
   
   <!-- Chromie Squiggle-inspired background -->
   <rect x="0" y="0" width="400" height="400" fill="#87CEEB" />
-  <path d="M100 50 C150 150, 250 250, 350 50" stroke="#ADD8E6" stroke-width="20" fill="none" />
-  
+  <path d="M50 50 C100 150, 150 250, 200 50 C250 150, 300 250, 350 50" stroke="#ADD8E6" stroke-width="10" fill="none" />
+  <path d="M25 100 C75 200, 125 300, 175 100 C225 200, 275 300, 325 100" stroke="#ADD8E6" stroke-width="10" fill="none" />
+  <path d="M0 150 C50 250, 100 350, 150 150 C200 250, 250 350, 300 150" stroke="#ADD8E6" stroke-width="10" fill="none" />
+  <path d="M75 200 C125 300, 175 400, 225 200 C275 300, 325 400, 375 200" stroke="#ADD8E6" stroke-width="10" fill="none" />
+  <path d="M50 250 C100 350, 150 450, 200 250 C250 350, 300 450, 350 250" stroke="#ADD8E6" stroke-width="10" fill="none" />
+
   <!-- Procedurally generated graffiti text -->
   <text x="50" y="200" font-family="Urban" font-size="50" fill="#4169E1">
     STREET ART
