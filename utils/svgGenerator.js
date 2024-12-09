@@ -29,9 +29,12 @@ class SVGGenerator {
     }
 
     static generateFullSVG(text, style, hue, complexity) {
-        const fontSize = 120;
         const x = 500;
         const y = 500;
+
+        // Calculate font size based on text length
+        const baseFontSize = 120;
+        const fontSize = Math.min(baseFontSize, (700 / Math.max(text.length, 10)) * baseFontSize / 8);
 
         const colors = [
             '#ff3333',  // Red
