@@ -35,12 +35,8 @@ function generatePreviews() {
         'MONKEE BUSINESS'
     ];
 
-    // Generate one sample SVG and log it to console to check content
-    const sampleSvg = SVGGenerator.generateFullSVG('TEST', 0, 180, 50);
-    console.log('Sample SVG content:');
-    console.log(sampleSvg);
-
-    let previewCount = 1;
+    // Create timestamp for unique filenames
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
     for (const text of texts) {
         const style = Math.floor(Math.random() * 5);
@@ -48,17 +44,13 @@ function generatePreviews() {
         const complexity = 20 + Math.floor(Math.random() * 60);
         
         const svg = SVGGenerator.generateFullSVG(text, style, hue, complexity);
-        const fileName = `preview_${previewCount}_${text.replace(/\s+/g, '_')}.svg`;
+        
+        // Create unique filename with timestamp
+        const fileName = `preview_${timestamp}_${text.replace(/\s+/g, '_')}.svg`;
         const filePath = path.join(outputDir, fileName);
         
-        // Write file and log its contents
         fs.writeFileSync(filePath, svg, 'utf8');
-        console.log(`Generated ${fileName}`);
-        if (previewCount === 1) {
-            console.log('First file content:', fs.readFileSync(filePath, 'utf8'));
-        }
-        
-        previewCount++;
+        console.log(`Generated: ${fileName}`);
     }
 }
 
