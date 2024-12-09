@@ -31,10 +31,19 @@ class SVGGenerator {
     static generateFullSVG(text, style, hue, complexity) {
         const x = 500;
         const y = 500;
+        const maxWidth = 900; // Maximum width for text
 
         // Calculate font size based on text length
         const baseFontSize = 120;
-        const fontSize = Math.min(baseFontSize, (700 / Math.max(text.length, 10)) * baseFontSize / 8);
+        let fontSize = baseFontSize;
+        
+        // Estimate text width (approximate)
+        const getTextWidth = (text, size) => text.length * size * 0.6;
+        
+        // Reduce font size until text fits
+        while (getTextWidth(text, fontSize) > maxWidth && fontSize > 20) {
+            fontSize *= 0.9;
+        }
 
         const colors = [
             '#ff3333',  // Red
