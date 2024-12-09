@@ -45,8 +45,8 @@ class SVGGenerator {
         return {
             id: `textGradient_${style}`,
             mainColor: color,
-            darkColor: this.shadeColor(color, -30), // Darker version for emboss
-            lightColor: this.shadeColor(color, 30)  // Lighter version for emboss
+            darkColor: this.shadeColor(color, -30),
+            lightColor: this.shadeColor(color, 30)
         };
     }
 
@@ -102,37 +102,46 @@ class SVGGenerator {
                             src: url(data:font/truetype;charset=utf-8;base64,${fontBase64}) format('truetype');
                         }
                     </style>
-                    <filter id="emboss">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
-                        <feOffset in="blur" dx="2" dy="2" result="offsetBlur"/>
-                        <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" 
-                                           specularExponent="20" lighting-color="#ffffff" result="spec">
+                    <filter id="textEffect" x="-50%" y="-50%" width="200%" height="200%">
+                        <!-- Shadow -->
+                        <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.5"/>
+                        
+                        <!-- Emboss effect -->
+                        <feSpecularLighting surfaceScale="5" specularConstant="1" specularExponent="20" lighting-color="#ffffff">
                             <fePointLight x="-5000" y="-10000" z="20000"/>
                         </feSpecularLighting>
-                        <feComposite in="SourceGraphic" in2="spec" operator="arithmetic" 
-                                    k1="0" k2="1" k3="1" k4="0" result="lit"/>
-                        <feMerge>
-                            <feMergeNode in="offsetBlur"/>
-                            <feMergeNode in="lit"/>
-                        </feMerge>
+                        <feComposite in2="SourceGraphic" operator="in" result="specular"/>
+                        <feComposite in="SourceGraphic" in2="specular" operator="arithmetic" k1="0" k2="1" k3="1" k4="0"/>
                     </filter>
                 </defs>
                 <rect width="1000" height="1000" fill="#1a1a1a" />
                 ${background}
-                <!-- Main text with emboss effect -->
-                <text 
-                    x="${x}" 
-                    y="${y}" 
-                    font-size="${fontSize}" 
-                    font-family="Urban" 
-                    fill="${textColors.mainColor}" 
-                    filter="url(#emboss)"
-                    text-anchor="middle" 
-                    dominant-baseline="middle"
-                    stroke="${textColors.darkColor}"
-                    stroke-width="2">
-                    ${text}
-                </text>
+                <g filter="url(#textEffect)">
+                    <!-- Outline/border -->
+                    <text 
+                        x="${x}" 
+                        y="${y}" 
+                        font-size="${fontSize}" 
+                        font-family="Urban" 
+                        fill="none"
+                        stroke="${textColors.darkColor}"
+                        stroke-width="3"
+                        text-anchor="middle" 
+                        dominant-baseline="middle">
+                        ${text}
+                    </text>
+                    <!-- Main text -->
+                    <text 
+                        x="${x}" 
+                        y="${y}" 
+                        font-size="${fontSize}" 
+                        font-family="Urban" 
+                        fill="${textColors.mainColor}" 
+                        text-anchor="middle" 
+                        dominant-baseline="middle">
+                        ${text}
+                    </text>
+                </g>
             </svg>`;
     }
 }
