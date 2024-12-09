@@ -44,6 +44,9 @@ class SVGGenerator {
             { offset: '0%', color: 'white' },
             { offset: '100%', color: 'hsl(0, 0%, 70%)' }
         ];
+
+        // Let's try using textLength and lengthAdjust attributes for spacing
+        const textLength = fontSize * text.length * 0.6; // Adjust this multiplier to control spacing
         
         return `
             <defs>
@@ -69,7 +72,8 @@ class SVGGenerator {
                 y="${y}" 
                 font-size="${fontSize}px" 
                 font-family="'CustomGraffiti'" 
-                letter-spacing="-0.2em"
+                textLength="${textLength}"
+                lengthAdjust="spacing"
                 fill="url(#${gradientId})" 
                 text-anchor="middle" 
                 dominant-baseline="middle"
