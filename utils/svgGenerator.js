@@ -73,9 +73,16 @@ class SVGGenerator {
         }
 
         const textLength = fontSize * text.length * 0.6;
-
-        // Create gradient for text
-        const gradientId = `textGradient${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Use solid color based on style
+        const colors = [
+            '#FF3333',  // Red
+            '#33FF33',  // Green
+            '#3333FF',  // Blue
+            '#FFFF33',  // Yellow
+            '#FF33FF'   // Magenta
+        ];
+        const textColor = colors[style % colors.length];
         
         return `
             <defs>
@@ -85,11 +92,6 @@ class SVGGenerator {
                         src: url(data:font/truetype;charset=utf-8;base64,${customFontBase64}) format('truetype');
                     }
                 </style>
-                <linearGradient id="${gradientId}" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:rgb(255,50,50);stop-opacity:1" />
-                    <stop offset="50%" style="stop-color:rgb(255,255,50);stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:rgb(50,255,255);stop-opacity:1" />
-                </linearGradient>
             </defs>
             <text 
                 x="${x}" 
@@ -98,7 +100,7 @@ class SVGGenerator {
                 font-family="'CustomGraffiti'" 
                 textLength="${textLength}"
                 lengthAdjust="spacing"
-                fill="url(#${gradientId})" 
+                fill="${textColor}" 
                 text-anchor="middle" 
                 dominant-baseline="middle">
                 ${finalText.split('\n').map((line, i) => 
