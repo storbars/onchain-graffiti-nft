@@ -33,53 +33,40 @@ class SVGGenerator {
     }
 
     static generateTextGradient(style) {
-        const gradients = [
-            // Gold gradient
-            {
-                id: 'goldGradient',
-                stops: [
-                    { offset: '0%', color: '#ffd700', opacity: '1' },
-                    { offset: '50%', color: '#ffcc00', opacity: '1' },
-                    { offset: '100%', color: '#ffd700', opacity: '1' }
-                ],
-                extraFilter: `
-                    <filter id="goldEffect">
-                        <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
-                        <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" 
-                                           specularExponent="20" lighting-color="#ffd700" result="spec">
-                            <fePointLight x="-5000" y="-10000" z="20000"/>
-                        </feSpecularLighting>
-                        <feComposite in="SourceGraphic" in2="spec" operator="arithmetic" 
-                                    k1="0" k2="1" k3="1" k4="0"/>
-                    </filter>
-                `
-            },
-            // Rainbow gradient
-            {
-                id: 'rainbowGradient',
-                stops: [
-                    { offset: '0%', color: '#ff0000', opacity: '1' },
-                    { offset: '16%', color: '#ff8000', opacity: '1' },
-                    { offset: '32%', color: '#ffff00', opacity: '1' },
-                    { offset: '48%', color: '#00ff00', opacity: '1' },
-                    { offset: '64%', color: '#0000ff', opacity: '1' },
-                    { offset: '80%', color: '#4b0082', opacity: '1' },
-                    { offset: '100%', color: '#8f00ff', opacity: '1' }
-                ]
-            },
-            // Chrome gradient
-            {
-                id: 'chromeGradient',
-                stops: [
-                    { offset: '0%', color: '#ffffff', opacity: '1' },
-                    { offset: '50%', color: '#808080', opacity: '1' },
-                    { offset: '100%', color: '#ffffff', opacity: '1' }
-                ]
-            }
+        const colors = [
+            '#ff3333',  // Red
+            '#33FF33',  // Green
+            '#3333FF',  // Blue
+            '#FFFF33',  // Yellow
+            '#FF33FF'   // Magenta
         ];
 
-        const gradientIndex = style % gradients.length;
-        return gradients[gradientIndex];
+        const color = colors[style % colors.length];
+        return {
+            id: `textGradient_${style}`,
+            mainColor: color,
+            darkColor: this.shadeColor(color, -30), // Darker version for emboss
+            lightColor: this.shadeColor(color, 30)  // Lighter version for emboss
+        };
+    }
+
+    static shadeColor(color, percent) {
+        let R = parseInt(color.substring(1,3), 16);
+        let G = parseInt(color.substring(3,5), 16);
+        let B = parseInt(color.substring(5,7), 16);
+
+        R = parseInt(R * (100 + percent) / 100);
+        G = parseInt(G * (100 + percent) / 100);
+        B = parseInt(B * (100 + percent) / 100);
+
+        R = Math.min(255, Math.max(0, R));
+        G = Math.min(255, Math.max(0, G));
+        B = Math.min(255, Math.max(0, B));
+
+        return '#' + 
+            (R < 16 ? '0' : '') + R.toString(16) +
+            (G < 16 ? '0' : '') + G.toString(16) +
+            (B < 16 ? '0' : '') + B.toString(16);
     }
 
     static generateFullSVG(text, style, hue, complexity) {
@@ -97,7 +84,7 @@ class SVGGenerator {
         }
 
         const background = this.generateSquiggleBackground(hue, complexity);
-        const gradient = this.generateTextGradient(style);
+        const textColors = this.generateTextGradient(style);
 
         // Read the Urban.ttf file and convert to base64
         const fs = require('fs');
@@ -115,24 +102,35 @@ class SVGGenerator {
                             src: url(data:font/truetype;charset=utf-8;base64,${fontBase64}) format('truetype');
                         }
                     </style>
-                    <linearGradient id="${gradient.id}" x1="0%" y1="0%" x2="100%" y2="0%">
-                        ${gradient.stops.map(stop => 
-                            `<stop offset="${stop.offset}" stop-color="${stop.color}" stop-opacity="${stop.opacity}"/>`
-                        ).join('')}
-                    </linearGradient>
-                    ${gradient.extraFilter || ''}
+                    <filter id="emboss">
+                        <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
+                        <feOffset in="blur" dx="2" dy="2" result="offsetBlur"/>
+                        <feSpecularLighting in="blur" surfaceScale="5" specularConstant=".75" 
+                                           specularExponent="20" lighting-color="#ffffff" result="spec">
+                            <fePointLight x="-5000" y="-10000" z="20000"/>
+                        </feSpecularLighting>
+                        <feComposite in="SourceGraphic" in2="spec" operator="arithmetic" 
+                                    k1="0" k2="1" k3="1" k4="0" result="lit"/>
+                        <feMerge>
+                            <feMergeNode in="offsetBlur"/>
+                            <feMergeNode in="lit"/>
+                        </feMerge>
+                    </filter>
                 </defs>
                 <rect width="1000" height="1000" fill="#1a1a1a" />
                 ${background}
+                <!-- Main text with emboss effect -->
                 <text 
                     x="${x}" 
                     y="${y}" 
                     font-size="${fontSize}" 
                     font-family="Urban" 
-                    fill="url(#${gradient.id})" 
-                    ${gradient.id === 'goldGradient' ? 'filter="url(#goldEffect)"' : ''}
+                    fill="${textColors.mainColor}" 
+                    filter="url(#emboss)"
                     text-anchor="middle" 
-                    dominant-baseline="middle">
+                    dominant-baseline="middle"
+                    stroke="${textColors.darkColor}"
+                    stroke-width="2">
                     ${text}
                 </text>
             </svg>`;
