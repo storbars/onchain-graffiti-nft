@@ -1,77 +1,82 @@
 class StreetLines {
-    static createNoiseGrid(width, height, scale) {
-        const grid = [];
-        for (let y = 0; y < height; y++) {
-            const row = [];
-            for (let x = 0; x < width; x++) {
-                // Simplified 2D noise function
-                const value = Math.sin(x * scale) * Math.cos(y * scale) * Math.PI * 2;
-                row.push(value);
-            }
-            grid.push(row);
-        }
-        return grid;
+    static generateBlockPath(x, y, width, height, angle) {
+        const rad = angle * Math.PI / 180;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+        
+        // Calculate rotated corners
+        const points = [
+            [x, y],
+            [x + width * cos, y + width * sin],
+            [x + width * cos - height * sin, y + width * sin + height * cos],
+            [x - height * sin, y + height * cos]
+        ];
+        
+        return `M ${points.map(p => p.join(',')).join(' L ')} Z`;
     }
 
     static generate(hue, complexity) {
-        const width = 100;
-        const height = 100;
-        const scale = 0.05;
-        const numLines = 30 + Math.floor(complexity * 0.5);
-        const noiseGrid = this.createNoiseGrid(width, height, scale);
+        const blocks = [];
+        const numBlocks = 20 + Math.floor(complexity * 0.3);
+        const baseAngle = Math.random() * 360;
         
-        const paths = [];
-        const lineLength = 200;
-        
-        for (let i = 0; i < numLines; i++) {
-            let x = Math.random() * width;
-            let y = Math.random() * height;
-            const points = [];
-            const lineHue = (hue + (i * 30)) % 360;
+        // Color palette
+        const colors = [
+            `hsl(${hue}, 70%, 60%)`,
+            `hsl(${(hue + 30) % 360}, 70%, 60%)`,
+            `hsl(${(hue + 60) % 360}, 70%, 40%)`,
+            `hsl(${(hue + 90) % 360}, 50%, 70%)`,
+            `hsl(${(hue + 120) % 360}, 60%, 50%)`
+        ];
+
+        for (let i = 0; i < numBlocks; i++) {
+            const x = Math.random() * 1000;
+            const y = Math.random() * 1000;
+            const width = 100 + Math.random() * 400;
+            const height = 20 + Math.random() * 40;
+            const angle = baseAngle + (Math.random() * 30 - 15);
             
-            for (let step = 0; step < lineLength; step++) {
-                // Scale coordinates to SVG space
-                const svgX = (x / width) * 1000;
-                const svgY = (y / height) * 1000;
-                points.push(`${svgX},${svgY}`);
+            // Add small decorative blocks
+            const mainColor = colors[i % colors.length];
+            blocks.push(`
+                <path 
+                    d="${this.generateBlockPath(x, y, width, height, angle)}" 
+                    fill="${mainColor}" 
+                    opacity="${0.6 + Math.random() * 0.4}"
+                />
+            `);
 
-                // Get flow direction from noise grid
-                const gridX = Math.floor(x);
-                const gridY = Math.floor(y);
-                if (gridX >= 0 && gridX < width && gridY >= 0 && gridY < height) {
-                    const angle = noiseGrid[gridY][gridX];
-                    // Move in direction of flow
-                    x += Math.cos(angle) * 2;
-                    y += Math.sin(angle) * 2;
-                }
-
-                // Wrap around edges
-                x = (x + width) % width;
-                y = (y + height) % height;
+            // Add small accent blocks
+            if (Math.random() > 0.5) {
+                const accentWidth = width * 0.2;
+                const accentColor = colors[(i + 1) % colors.length];
+                blocks.push(`
+                    <path 
+                        d="${this.generateBlockPath(x + width * 0.8 * cos(angle), y, accentWidth, height, angle)}" 
+                        fill="${accentColor}" 
+                        opacity="0.8"
+                    />
+                `);
             }
-
-            // Create SVG path with varying opacity and width
-            const opacity = 0.3 + (Math.random() * 0.4);
-            const strokeWidth = 1 + (Math.random() * 3);
-            paths.push(`<path 
-                d="M ${points.join(' L ')}" 
-                stroke="hsl(${lineHue}, 70%, 60%)" 
-                stroke-width="${strokeWidth}" 
-                stroke-opacity="${opacity}" 
-                fill="none" 
-                stroke-linecap="round"
-            />`);
         }
 
         return {
-            svg: paths.join('\n'),
+            svg: blocks.join('\n'),
             attributes: {
                 style: "Street Lines",
                 complexity: complexity > 70 ? "High" : complexity > 40 ? "Medium" : "Low",
-                density: numLines + " flows",
-                technique: "Flow Field"
+                density: numBlocks + " blocks",
+                technique: "Geometric Blocks"
             }
         };
+    }
+
+    static cos(angle) {
+        return Math.cos(angle * Math.PI / 180);
+    }
+
+    static sin(angle) {
+        return Math.sin(angle * Math.PI / 180);
     }
 }
 
