@@ -1,52 +1,22 @@
-class SVGGenerator {
-    static generateSquiggleBackground(hue, complexity) {
-        const layers = [];
-        const numLayers = 50;
-        
-        for (let layer = 0; layer < numLayers; layer++) {
-            const points = [];
-            const amplitude = 15 + (Math.random() * 40) + (layer * 5);
-            const frequency = 0.001 + (Math.random() * 0.003);
-            const verticalOffset = 200 + (Math.random() * 600);
-            const phaseShift = Math.random() * Math.PI * 2;
-            
-            for (let x = 0; x < 1000; x += 5) {
-                const y = verticalOffset + 
-                    Math.sin(x * frequency + phaseShift) * amplitude +
-                    Math.sin(x * frequency * 2 + phaseShift) * (amplitude * 0.5) +
-                    Math.sin(x * frequency * 0.5 + phaseShift) * (amplitude * 0.3);
-                points.push(`${x},${y}`);
-            }
-            
-            const layerHue = (hue + (layer * 7)) % 360;
-            const opacity = 0.3 - (layer * 0.004);
-            const strokeWidth = 1 + (Math.random() * 2);
-            
-            layers.push(`<path 
-                d="M ${points.join(' L ')}" 
-                stroke="hsl(${layerHue}, 70%, 60%)" 
-                stroke-width="${strokeWidth}" 
-                stroke-opacity="${opacity}" 
-                fill="none" />`);
-        }
-        return layers.join('');
-    }
+const WaveLines = require('./backgroundStyles/wave-lines');
 
+class SVGGenerator {
     static generateTextGradient(style) {
         const colors = [
-            '#ff3333',  // Red
-            '#33FF33',  // Green
-            '#3333FF',  // Blue
-            '#FFFF33',  // Yellow
-            '#FF33FF'   // Magenta
+            { name: 'Red', hex: '#ff3333' },
+            { name: 'Green', hex: '#33FF33' },
+            { name: 'Blue', hex: '#3333FF' },
+            { name: 'Yellow', hex: '#FFFF33' },
+            { name: 'Magenta', hex: '#FF33FF' }
         ];
 
-        const color = colors[style % colors.length];
+        const colorScheme = colors[style % colors.length];
         return {
-            mainColor: color,
-            darkColor: this.shadeColor(color, -50),  // Darker for shadow
-            lightColor: this.shadeColor(color, 30),  // Lighter for highlight
-            outlineColor: '#000000'  // Black outline
+            name: colorScheme.name,
+            mainColor: colorScheme.hex,
+            darkColor: this.shadeColor(colorScheme.hex, -50),
+            lightColor: this.shadeColor(colorScheme.hex, 30),
+            outlineColor: '#000000'
         };
     }
 
@@ -83,7 +53,8 @@ class SVGGenerator {
             fontSize *= 0.9;
         }
 
-        const background = this.generateSquiggleBackground(hue, complexity);
+        // Generate background with metadata
+        const background = WaveLines.generate(hue, complexity);
         const textColors = this.generateTextGradient(style);
 
         // Read the Urban.ttf file and convert to base64
@@ -93,7 +64,8 @@ class SVGGenerator {
         const fontBuffer = fs.readFileSync(fontPath);
         const fontBase64 = fontBuffer.toString('base64');
 
-        return `<?xml version="1.0" encoding="UTF-8"?>
+        // Generate SVG
+        const svg = `<?xml version="1.0" encoding="UTF-8"?>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
                 <defs>
                     <style>
@@ -104,7 +76,7 @@ class SVGGenerator {
                     </style>
                 </defs>
                 <rect width="1000" height="1000" fill="#1a1a1a" />
-                ${background}
+                ${background.svg}
                 
                 <!-- Shadow layer -->
                 <text 
@@ -157,6 +129,41 @@ class SVGGenerator {
                     ${text}
                 </text>
             </svg>`;
+
+        // Return both SVG and metadata
+        return {
+            svg: svg,
+            metadata: {
+                name: `GenStreetArt #${Math.floor(Math.random() * 420) + 1}`,
+                description: "GenStreetArt is a collection of 420 unique generative art pieces combining graffiti text and dynamic backgrounds",
+                attributes: [
+                    {
+                        "trait_type": "Background Style",
+                        "value": background.attributes.style
+                    },
+                    {
+                        "trait_type": "Wave Complexity",
+                        "value": background.attributes.complexity
+                    },
+                    {
+                        "trait_type": "Wave Density",
+                        "value": background.attributes.density
+                    },
+                    {
+                        "trait_type": "Color Scheme",
+                        "value": textColors.name
+                    },
+                    {
+                        "trait_type": "Text Content",
+                        "value": text
+                    },
+                    {
+                        "trait_type": "Text Style",
+                        "value": "Embossed"
+                    }
+                ]
+            }
+        };
     }
 }
 
