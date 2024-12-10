@@ -35,8 +35,9 @@ class StreetLines {
             const width = 100 + Math.random() * 400;
             const height = 20 + Math.random() * 40;
             const angle = baseAngle + (Math.random() * 30 - 15);
+            const rad = angle * Math.PI / 180;
             
-            // Add small decorative blocks
+            // Add main block
             const mainColor = colors[i % colors.length];
             blocks.push(`
                 <path 
@@ -49,10 +50,13 @@ class StreetLines {
             // Add small accent blocks
             if (Math.random() > 0.5) {
                 const accentWidth = width * 0.2;
+                const accentX = x + width * 0.8 * Math.cos(rad);
+                const accentY = y + width * 0.8 * Math.sin(rad);
                 const accentColor = colors[(i + 1) % colors.length];
+                
                 blocks.push(`
                     <path 
-                        d="${this.generateBlockPath(x + width * 0.8 * cos(angle), y, accentWidth, height, angle)}" 
+                        d="${this.generateBlockPath(accentX, accentY, accentWidth, height, angle)}" 
                         fill="${accentColor}" 
                         opacity="0.8"
                     />
@@ -69,14 +73,6 @@ class StreetLines {
                 technique: "Geometric Blocks"
             }
         };
-    }
-
-    static cos(angle) {
-        return Math.cos(angle * Math.PI / 180);
-    }
-
-    static sin(angle) {
-        return Math.sin(angle * Math.PI / 180);
     }
 }
 
