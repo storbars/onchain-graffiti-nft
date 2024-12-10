@@ -139,7 +139,25 @@ class SVGGenerator {
                 name: `GenStreetArt #${Math.floor(Math.random() * 420) + 1}`,
                 description: "GenStreetArt is a collection of 420 unique generative art pieces combining graffiti text and dynamic backgrounds",
                 attributes: [
-                    ...background.attributes,
+                    // Convert background.attributes to array if it's not already
+                    ...(Array.isArray(background.attributes) ? background.attributes : [
+                        {
+                            "trait_type": "Background Style",
+                            "value": background.attributes.style
+                        },
+                        {
+                            "trait_type": "Background Complexity",
+                            "value": background.attributes.complexity
+                        },
+                        {
+                            "trait_type": "Background Density",
+                            "value": background.attributes.density
+                        },
+                        background.attributes.variation ? {
+                            "trait_type": "Variation",
+                            "value": background.attributes.variation
+                        } : null
+                    ].filter(Boolean)),
                     {
                         "trait_type": "Text Content",
                         "value": text
