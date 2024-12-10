@@ -1,17 +1,11 @@
 const SVGGenerator = require('../utils/svgGenerator');
 const fs = require('fs');
 const path = require('path');
-const crypto = require('crypto');
 
-// Create preview directory if it doesn't exist
+// Create output directory if it doesn't exist
 const outputDir = path.join(__dirname, '../preview');
-
 if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
-}
-
-function generateRandomString() {
-    return crypto.randomBytes(4).toString('hex');
 }
 
 function generatePreviews() {
@@ -41,24 +35,38 @@ function generatePreviews() {
         'MONKEE BUSINESS'
     ];
 
-    const batchId = `${Date.now()}_${generateRandomString()}`;
-    console.log(`Generating batch: ${batchId}`);
+    // Generate samples with both background styles
+    const timestamp = Date.now();
+    let previewCount = 1;
 
-    for (let i = 0; i < texts.length; i++) {
-        const text = texts[i];
-        const style = Math.floor(Math.random() * 5);
-        const hue = Math.floor(Math.random() * 360);
-        const complexity = 20 + Math.floor(Math.random() * 60);
+    // Generate both styles for each text
+    texts.forEach((text, index) => {
+        // Wave Lines version
+        const waveStyle = 0; // Wave Lines
+        const waveResult = SVGGenerator.generateFullSVG(text, waveStyle, 
+            Math.random() * 360, // random hue
+            20 + Math.random() * 80 // random complexity
+        );
         
-        const svg = SVGGenerator.generateFullSVG(text, style, hue, complexity);
+        const waveFileName = `preview_${String(previewCount).padStart(3, '0')}_${timestamp}_wave_${text.replace(/\s+/g, '_')}.svg`;
+        fs.writeFileSync(path.join(outputDir, waveFileName), waveResult.svg);
+        console.log(`Generated Wave Lines: ${waveFileName}`);
+        console.log('Metadata:', JSON.stringify(waveResult.metadata, null, 2));
+        previewCount++;
+
+        // Street Lines version
+        const streetStyle = 1; // Street Lines
+        const streetResult = SVGGenerator.generateFullSVG(text, streetStyle, 
+            Math.random() * 360, // random hue
+            20 + Math.random() * 80 // random complexity
+        );
         
-        const uniqueId = generateRandomString();
-        const fileName = `${batchId}_${String(i + 1).padStart(3, '0')}_${text.replace(/\s+/g, '_')}_${uniqueId}.svg`;
-        const filePath = path.join(outputDir, fileName);
-        
-        fs.writeFileSync(filePath, svg, 'utf8');
-        console.log(`Generated: ${fileName}`);
-    }
+        const streetFileName = `preview_${String(previewCount).padStart(3, '0')}_${timestamp}_street_${text.replace(/\s+/g, '_')}.svg`;
+        fs.writeFileSync(path.join(outputDir, streetFileName), streetResult.svg);
+        console.log(`Generated Street Lines: ${streetFileName}`);
+        console.log('Metadata:', JSON.stringify(streetResult.metadata, null, 2));
+        previewCount++;
+    });
 }
 
 console.log('Starting NFT preview generation...');
