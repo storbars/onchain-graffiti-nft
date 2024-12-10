@@ -3,13 +3,12 @@ const StreetLines = require('./backgroundStyles/street-lines');
 
 class SVGGenerator {
     static getBackgroundStyle(style, hue, complexity) {
-        const styles = [
-            WaveLines,
-            StreetLines
-        ];
-        
-        const backgroundStyle = styles[style % styles.length];
-        return backgroundStyle.generate(hue, complexity);
+        // Even numbers for wave-lines, odd numbers for street-lines
+        if (style % 2 === 0) {
+            return WaveLines.generate(hue, complexity);
+        } else {
+            return StreetLines.generate(hue, complexity);
+        }
     }
 
     static generateTextGradient(style) {
@@ -63,7 +62,6 @@ class SVGGenerator {
             fontSize *= 0.9;
         }
 
-        // Generate background with metadata
         const background = this.getBackgroundStyle(style, hue, complexity);
         const textColors = this.generateTextGradient(style);
 
@@ -74,7 +72,8 @@ class SVGGenerator {
         const fontBuffer = fs.readFileSync(fontPath);
         const fontBase64 = fontBuffer.toString('base64');
 
-        const svg = `<?xml version="1.0" encoding="UTF-8"?>
+        return {
+            svg: `<?xml version="1.0" encoding="UTF-8"?>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
                 <defs>
                     <style>
@@ -84,9 +83,7 @@ class SVGGenerator {
                         }
                     </style>
                 </defs>
-                <rect width="1000" height="1000" fill="#1a1a1a" />
                 ${background.svg}
-                
                 <!-- Shadow layer -->
                 <text 
                     x="${x + 4}" 
@@ -137,26 +134,12 @@ class SVGGenerator {
                     opacity="0.3">
                     ${text}
                 </text>
-            </svg>`;
-
-        return {
-            svg: svg,
+            </svg>`,
             metadata: {
                 name: `GenStreetArt #${Math.floor(Math.random() * 420) + 1}`,
                 description: "GenStreetArt is a collection of 420 unique generative art pieces combining graffiti text and dynamic backgrounds",
                 attributes: [
-                    {
-                        "trait_type": "Background Style",
-                        "value": background.attributes.style
-                    },
-                    {
-                        "trait_type": "Background Complexity",
-                        "value": background.attributes.complexity
-                    },
-                    {
-                        "trait_type": "Background Density",
-                        "value": background.attributes.density
-                    },
+                    ...background.attributes,
                     {
                         "trait_type": "Text Content",
                         "value": text
