@@ -1,26 +1,22 @@
 const WaveLines = require('./backgroundStyles/wave-lines');
 const StreetLines = require('./backgroundStyles/street-lines');
+const FlowArt = require('./backgroundStyles/flow-art');
 
 class SVGGenerator {
     static getBackgroundStyle(style, hue, complexity) {
-        console.log('Style parameter:', style); // Debug log
+        // Style mapping: 0 = Wave Lines, 1 = Street Lines, 2 = Flow Art
+        const styles = [
+            WaveLines,
+            StreetLines,
+            FlowArt
+        ];
         
-        if (style % 2 === 0) {
-            console.log('Generating Wave Lines');
-            return WaveLines.generate(hue, complexity);
-        } else {
-            console.log('Generating Street Lines');
-            try {
-                return StreetLines.generate(hue, complexity);
-            } catch (error) {
-                console.error('Error generating Street Lines:', error);
-                // Fallback to Wave Lines if Street Lines fails
-                return WaveLines.generate(hue, complexity);
-            }
-        }
+        const selectedStyle = styles[style % styles.length];
+        console.log('Generating style:', style % styles.length);
+        return selectedStyle.generate(hue, complexity);
     }
 
-    // Rest of the SVGGenerator class remains the same
+    // Rest of the SVGGenerator class remains the same...
 }
 
 module.exports = SVGGenerator;
