@@ -38,39 +38,28 @@ function generatePreviews() {
     const timestamp = Date.now();
     let previewCount = 1;
 
-    // First, generate some Wave Lines examples
-    console.log('\nGenerating Wave Lines examples...');
-    for (let i = 0; i < 3; i++) {
-        const text = texts[Math.floor(Math.random() * texts.length)];
-        const result = SVGGenerator.generateFullSVG(
-            text,
-            0, // Wave Lines style
-            Math.random() * 360,
-            20 + Math.random() * 80
-        );
+    // Generate examples of each style
+    const styles = ['wave', 'street', 'flow'];
+    styles.forEach((styleName, styleIndex) => {
+        console.log(`\nGenerating ${styleName} examples...`);
+        
+        // Generate 3 examples of each style
+        for (let i = 0; i < 3; i++) {
+            const text = texts[Math.floor(Math.random() * texts.length)];
+            const result = SVGGenerator.generateFullSVG(
+                text,
+                styleIndex,
+                Math.random() * 360,
+                20 + Math.random() * 80
+            );
 
-        const fileName = `preview_${String(previewCount).padStart(3, '0')}_wave_${text.replace(/\s+/g, '_')}.svg`;
-        fs.writeFileSync(path.join(outputDir, fileName), result.svg);
-        console.log(`Generated Wave Lines: ${fileName}`);
-        previewCount++;
-    }
-
-    // Then, generate Street Lines examples
-    console.log('\nGenerating Street Lines examples...');
-    for (let i = 0; i < 3; i++) {
-        const text = texts[Math.floor(Math.random() * texts.length)];
-        const result = SVGGenerator.generateFullSVG(
-            text,
-            1, // Street Lines style
-            Math.random() * 360,
-            20 + Math.random() * 80
-        );
-
-        const fileName = `preview_${String(previewCount).padStart(3, '0')}_street_${text.replace(/\s+/g, '_')}.svg`;
-        fs.writeFileSync(path.join(outputDir, fileName), result.svg);
-        console.log(`Generated Street Lines: ${fileName}`);
-        previewCount++;
-    }
+            const fileName = `preview_${String(previewCount).padStart(3, '0')}_${styleName}_${text.replace(/\s+/g, '_')}.svg`;
+            fs.writeFileSync(path.join(outputDir, fileName), result.svg);
+            console.log(`Generated ${styleName}: ${fileName}`);
+            console.log('Metadata:', JSON.stringify(result.metadata, null, 2));
+            previewCount++;
+        }
+    });
 }
 
 console.log('Starting NFT preview generation...');
